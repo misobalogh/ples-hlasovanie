@@ -7,6 +7,13 @@
   var KEY_VOTED = cfg.STORAGE_PREFIX + ':voted';
 
   var VIEWS = ['loading', 'error', 'closed', 'already', 'thanks', 'form'];
+  var TABS = ['girl', 'boy'];
+  // Show the name search only when a category has more candidates than this.
+  var SEARCH_MIN_CANDIDATES = 8;
+  var AUTO_ADVANCE_MS = 350;
+
+  var activeTab = 'girl';
+  var advanceTimer = null;
 
   var client = null;
   var submitting = false;
@@ -79,6 +86,7 @@
     items.forEach(function (c) {
       var label = document.createElement('label');
       label.className = 'card';
+      label.setAttribute('data-search', normalize(c.name));
 
       var input = document.createElement('input');
       input.type = 'radio';
@@ -100,6 +108,69 @@
     });
   }
 
+  // Lowercase and strip diacritics, so "tomas" matches "Tomas" with accents.
+  function normalize(text) {
+    return String(text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  }
+
+  function selectedInput(groupName) {
+    return document.querySelector('input[name="' + groupName + '"]:checked');
+  }
+
+  function selectedName(groupName) {
+    var input = selectedInput(groupName);
+    if (!input) { return null; }
+    var name = input.parentNode.querySelector('.name');
+    return name ? name.textContent : null;
+  }
+
+  function listFor(tab) { return $(tab === 'girl' ? 'list-girls' : 'list-boys'); }
+
+  function setTab(tab, focusTab) {
+    if (advanceTimer) { window.clearTimeout(advanceTimer); advanceTimer = null; }
+    var changed = tab !== activeTab;
+    activeTab = tab;
+    TABS.forEach(function (name) {
+      var btn = $('tab-' + name);
+      var on = name === tab;
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      btn.tabIndex = on ? 0 : -1;
+      $('panel-' + name).hidden = !on;
+    });
+    if (focusTab) { $('tab-' + tab).focus(); }
+    if (changed) {
+      $('search').value = '';
+      applySearch();
+      // Bring the start of the list into view if the user scrolled down.
+      var head = document.querySelector('.picker-head');
+      if (head && head.getBoundingClientRect().top < 0) {
+        head.scrollIntoView({ block: 'start' });
+      }
+    }
+    updateSearchVisibility();
+  }
+
+  function updateSearchVisibility() {
+    var count = listFor(activeTab).querySelectorAll('.card').length;
+    var tooFew = count <= SEARCH_MIN_CANDIDATES;
+    $('search-wrap').hidden = tooFew;
+    if (tooFew && $('search').value) { $('search').value = ''; applySearch(); }
+  }
+
+  function applySearch() {
+    var query = normalize($('search').value);
+    var list = listFor(activeTab);
+    var cards = list.querySelectorAll('.card');
+    var visible = 0;
+    Array.prototype.forEach.call(cards, function (card) {
+      var match = !query || card.getAttribute('data-search').indexOf(query) !== -1;
+      card.hidden = !match;
+      if (match) { visible += 1; }
+    });
+    $('no-match').hidden = !(cards.length && visible === 0);
+    $('search-clear').hidden = !query;
+  }
+
   function selectedValue(groupName) {
     var el = document.querySelector('input[name="' + groupName + '"]:checked');
     return el ? Number(el.value) : null;
@@ -117,16 +188,12 @@
     var ready = girl !== null && boy !== null;
     $('btn-submit').disabled = !ready || submitting;
 
-    var hint = $('submit-hint');
-    if (ready) {
-      hint.textContent = t('hint-ready');
-    } else if (girl === null && boy === null) {
-      hint.textContent = t('hint-none');
-    } else if (girl === null) {
-      hint.textContent = t('hint-girl');
-    } else {
-      hint.textContent = t('hint-boy');
-    }
+    var girlName = selectedName('girl');
+    var boyName = selectedName('boy');
+    $('tab-pick-girl').textContent = girlName || t('tab-girl-empty');
+    $('tab-pick-boy').textContent = boyName || t('tab-boy-empty');
+    $('tab-girl').classList.toggle('is-done', girl !== null);
+    $('tab-boy').classList.toggle('is-done', boy !== null);
   }
 
   function setSubmitting(on) {
@@ -183,6 +250,9 @@
         renderList($('list-girls'), 'girl', girls);
         renderList($('list-boys'), 'boy', boys);
         setFormError('');
+        $('search').value = '';
+        activeTab = null;
+        setTab('girl');
         updateSubmitState();
         show('form');
       })
@@ -248,7 +318,42 @@
   }
 
   getDeviceId(); // create the id on the first visit
-  $('view-form').addEventListener('change', updateSubmitState);
+  $('view-form').addEventListener('change', function (ev) {
+    updateSubmitState();
+    var target = ev.target;
+    if (!target || target.type !== 'radio') { return; }
+    // Auto-advance to the other category if it has no pick yet.
+    var other = target.name === 'girl' ? 'boy' : 'girl';
+    if (target.name === activeTab && selectedValue(other) === null) {
+      if (advanceTimer) { window.clearTimeout(advanceTimer); }
+      advanceTimer = window.setTimeout(function () {
+        advanceTimer = null;
+        setTab(other);
+      }, AUTO_ADVANCE_MS);
+    }
+  });
+
+  document.querySelectorAll('.tab').forEach(function (btn) {
+    btn.addEventListener('click', function () { setTab(btn.getAttribute('data-tab')); });
+  });
+
+  // Arrow keys move between tabs (WAI-ARIA tabs pattern).
+  document.querySelector('.tabs').addEventListener('keydown', function (ev) {
+    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') { return; }
+    ev.preventDefault();
+    setTab(activeTab === 'girl' ? 'boy' : 'girl', true);
+  });
+
+  $('search').addEventListener('input', applySearch);
+  $('search').addEventListener('keydown', function (ev) {
+    // Enter in the search field must not submit the vote.
+    if (ev.key === 'Enter') { ev.preventDefault(); $('search').blur(); }
+  });
+  $('search-clear').addEventListener('click', function () {
+    $('search').value = '';
+    applySearch();
+    $('search').focus();
+  });
   $('view-form').addEventListener('submit', submit);
   $('btn-retry').addEventListener('click', function () {
     if (!client) { window.location.reload(); return; }

@@ -66,22 +66,39 @@
 
     <!-- Voting form -->
     <form id="view-form" hidden novalidate>
-      <p class="subtitle" style="text-align:center;margin:-8px 0 26px">Vyber jedno dievča a jedného chlapca a odošli hlas.</p>
+      <p class="subtitle" style="text-align:center;margin:-8px 0 20px">Vyber jedno dievča a jedného chlapca a odošli hlas.</p>
 
-      <fieldset class="section">
-        <legend class="section-title"><span class="role">Kráľovná</span><span class="who">dievča</span></legend>
+      <div class="picker-head">
+        <div class="tabs" role="tablist" aria-label="Kategória">
+          <button type="button" class="tab" role="tab" id="tab-girl" data-tab="girl" aria-controls="panel-girl" aria-selected="true">
+            <span class="tab-role">Kráľovná</span>
+            <span class="tab-pick" id="tab-pick-girl">dievča</span>
+            <svg class="tab-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" class="tab" role="tab" id="tab-boy" data-tab="boy" aria-controls="panel-boy" aria-selected="false" tabindex="-1">
+            <span class="tab-role">Kráľ</span>
+            <span class="tab-pick" id="tab-pick-boy">chlapec</span>
+            <svg class="tab-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="search" id="search-wrap" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input type="search" id="search" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="Hľadať meno…" aria-label="Hľadať meno">
+          <button type="button" class="search-clear" id="search-clear" aria-label="Vymazať hľadanie" hidden>&times;</button>
+        </div>
+      </div>
+
+      <div class="tab-panel" role="tabpanel" id="panel-girl" aria-labelledby="tab-girl">
         <div class="cards" id="list-girls" role="radiogroup" aria-label="Kráľovná: dievča"></div>
-      </fieldset>
-
-      <fieldset class="section">
-        <legend class="section-title"><span class="role">Kráľ</span><span class="who">chlapec</span></legend>
+      </div>
+      <div class="tab-panel" role="tabpanel" id="panel-boy" aria-labelledby="tab-boy" hidden>
         <div class="cards" id="list-boys" role="radiogroup" aria-label="Kráľ: chlapec"></div>
-      </fieldset>
+      </div>
+      <p class="empty-note" id="no-match" hidden>Nikto taký sa nenašiel.</p>
 
       <div class="submit-bar">
         <div class="inner">
           <p class="form-error" id="form-error" role="alert" hidden></p>
-          <p class="submit-hint" id="submit-hint">Vyber kráľovnú aj kráľa.</p>
           <button type="submit" class="btn btn-primary btn-block" id="btn-submit" disabled>Odoslať hlas</button>
         </div>
       </div>
@@ -94,10 +111,8 @@
     <span data-msg="load-error">Nepodarilo sa načítať údaje. Skontroluj pripojenie na internet.</span>
     <span data-msg="app-load-error">Nepodarilo sa načítať aplikáciu. Skontroluj pripojenie a skús znova.</span>
     <span data-msg="no-candidates">Zatiaľ tu nie sú žiadni kandidáti.</span>
-    <span data-msg="hint-ready">Všetko vybraté, môžeš odoslať.</span>
-    <span data-msg="hint-none">Vyber kráľovnú aj kráľa.</span>
-    <span data-msg="hint-girl">Ešte vyber kráľovnú.</span>
-    <span data-msg="hint-boy">Ešte vyber kráľa.</span>
+    <span data-msg="tab-girl-empty">dievča</span>
+    <span data-msg="tab-boy-empty">chlapec</span>
     <span data-msg="submitting">Odosielam…</span>
     <span data-msg="submit">Odoslať hlas</span>
     <span data-msg="candidates-changed">Zoznam kandidátov sa medzitým zmenil. Načítavam ho znova…</span>
