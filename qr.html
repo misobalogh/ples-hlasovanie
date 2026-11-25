@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0a1f">
+  <title>QR kód · Kráľ a kráľovná plesu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="qr-page">
+  <main class="wrap">
+    <header class="hero" style="margin-bottom:8px">
+      <svg class="crown" viewBox="0 0 64 44" aria-hidden="true">
+        <path fill="currentColor" d="M4 12l14 12L32 4l14 20 14-12-6 26H10L4 12zm6 28h44v4H10v-4z"/>
+        <circle cx="4" cy="10" r="3.5" fill="currentColor"/>
+        <circle cx="32" cy="3.5" r="3.5" fill="currentColor"/>
+        <circle cx="60" cy="10" r="3.5" fill="currentColor"/>
+      </svg>
+      <p class="event-title" data-event-title>Ples</p>
+      <h1>Kráľ a kráľovná plesu</h1>
+    </header>
+
+    <p class="qr-cta">Naskenuj a hlasuj</p>
+    <div class="qr-box" id="qr" role="img" aria-label="QR kód na hlasovanie"></div>
+    <p class="qr-url" id="qr-url"></p>
+
+    <p class="no-print" style="margin-top:22px">
+      <button type="button" class="btn" onclick="window.print()">Vytlačiť</button>
+    </p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode.js"
+          integrity="sha384-e9EFD6BGC90bkW9aDV5xbbBfzwN7G8YImHao2lfLVKV/hPB0E0go+H3I64h7oHtA"
+          crossorigin="anonymous"></script>
+  <script src="config.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var cfg = window.PLES_CONFIG;
+      document.querySelectorAll('[data-event-title]').forEach(function (el) {
+        el.textContent = cfg.EVENT_TITLE;
+      });
+
+      // Priority: ?url=... parameter, then VOTE_URL from config, then the
+      // folder this page is served from (index.html lives next to qr.html).
+      var param = new URLSearchParams(window.location.search).get('url');
+      var voteUrl = param || cfg.VOTE_URL || new URL('./', window.location.href).href;
+      document.getElementById('qr-url').textContent = voteUrl;
+
+      var box = document.getElementById('qr');
+      if (typeof window.qrcode !== 'function') {
+        box.textContent = 'QR knižnicu sa nepodarilo načítať. Skontroluj pripojenie.';
+        return;
+      }
+
+      var qr = window.qrcode(0, 'M');
+      qr.addData(voteUrl);
+      qr.make();
+
+      // Build a crisp SVG from the module matrix (one path, 4-module quiet zone).
+      var n = qr.getModuleCount();
+      var margin = 4;
+      var size = n + margin * 2;
+      var d = '';
+      for (var r = 0; r < n; r++) {
+        for (var c = 0; c < n; c++) {
+          if (qr.isDark(r, c)) { d += 'M' + (c + margin) + ' ' + (r + margin) + 'h1v1h-1z'; }
+        }
+      }
+      var ns = 'http://www.w3.org/2000/svg';
+      var svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('viewBox', '0 0 ' + size + ' ' + size);
+      svg.setAttribute('shape-rendering', 'crispEdges');
+      var bg = document.createElementNS(ns, 'rect');
+      bg.setAttribute('width', size);
+      bg.setAttribute('height', size);
+      bg.setAttribute('fill', '#fff');
+      var path = document.createElementNS(ns, 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('fill', '#000');
+      svg.appendChild(bg);
+      svg.appendChild(path);
+      box.appendChild(svg);
+    })();
+  </script>
+</body>
+</html>

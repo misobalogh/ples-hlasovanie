@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a1f">
+  <title>Kráľ a kráľovná plesu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <svg class="crown" viewBox="0 0 64 44" aria-hidden="true">
+        <path fill="currentColor" d="M4 12l14 12L32 4l14 20 14-12-6 26H10L4 12zm6 28h44v4H10v-4z"/>
+        <circle cx="4" cy="10" r="3.5" fill="currentColor"/>
+        <circle cx="32" cy="3.5" r="3.5" fill="currentColor"/>
+        <circle cx="60" cy="10" r="3.5" fill="currentColor"/>
+      </svg>
+      <p class="event-title" data-event-title>Ples</p>
+      <h1>Kráľ a kráľovná plesu</h1>
+      <div class="divider"></div>
+    </header>
+
+    <!-- Loading -->
+    <section id="view-loading" class="panel" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <h2>Načítavam…</h2>
+    </section>
+
+    <!-- Network / server error -->
+    <section id="view-error" class="panel" hidden>
+      <h2>Niečo sa pokazilo</h2>
+      <p id="error-text">Nepodarilo sa načítať údaje. Skontroluj pripojenie na internet.</p>
+      <button type="button" class="btn btn-primary" id="btn-retry">Skúsiť znova</button>
+    </section>
+
+    <!-- Voting closed -->
+    <section id="view-closed" class="panel" hidden>
+      <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+      </svg>
+      <h2>Hlasovanie je ukončené</h2>
+      <p>Ďakujeme všetkým, ktorí hlasovali. Výsledky budú vyhlásené na plese.</p>
+    </section>
+
+    <!-- Already voted -->
+    <section id="view-already" class="panel" hidden>
+      <svg class="panel-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>
+      </svg>
+      <h2>Už si hlasoval/a, ďakujeme</h2>
+      <p>Z jedného mobilu sa dá hlasovať iba raz.</p>
+    </section>
+
+    <!-- Thank you -->
+    <section id="view-thanks" class="panel" hidden>
+      <svg class="panel-icon" viewBox="0 0 64 44" aria-hidden="true">
+        <path fill="currentColor" d="M4 12l14 12L32 4l14 20 14-12-6 26H10L4 12zm6 28h44v4H10v-4z"/>
+      </svg>
+      <h2>Ďakujeme za tvoj hlas!</h2>
+      <p>Tvoj hlas bol zaznamenaný. Kráľa a kráľovnú vyhlásime počas plesu.</p>
+    </section>
+
+    <!-- Voting form -->
+    <form id="view-form" hidden novalidate>
+      <p class="subtitle" style="text-align:center;margin:-8px 0 26px">Vyber jedno dievča a jedného chlapca a odošli hlas.</p>
+
+      <fieldset class="section">
+        <legend class="section-title"><span class="role">Kráľovná</span><span class="who">dievča</span></legend>
+        <div class="cards" id="list-girls" role="radiogroup" aria-label="Kráľovná: dievča"></div>
+      </fieldset>
+
+      <fieldset class="section">
+        <legend class="section-title"><span class="role">Kráľ</span><span class="who">chlapec</span></legend>
+        <div class="cards" id="list-boys" role="radiogroup" aria-label="Kráľ: chlapec"></div>
+      </fieldset>
+
+      <div class="submit-bar">
+        <div class="inner">
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+          <p class="submit-hint" id="submit-hint">Vyber kráľovnú aj kráľa.</p>
+          <button type="submit" class="btn btn-primary btn-block" id="btn-submit" disabled>Odoslať hlas</button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js"
+          integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ"
+          crossorigin="anonymous"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

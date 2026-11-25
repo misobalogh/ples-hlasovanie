@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a1f">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Výsledky · Kráľ a kráľovná plesu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="wrap wide">
+    <header class="hero">
+      <svg class="crown" viewBox="0 0 64 44" aria-hidden="true">
+        <path fill="currentColor" d="M4 12l14 12L32 4l14 20 14-12-6 26H10L4 12zm6 28h44v4H10v-4z"/>
+        <circle cx="4" cy="10" r="3.5" fill="currentColor"/>
+        <circle cx="32" cy="3.5" r="3.5" fill="currentColor"/>
+        <circle cx="60" cy="10" r="3.5" fill="currentColor"/>
+      </svg>
+      <p class="event-title" data-event-title>Ples</p>
+      <h1>Výsledky hlasovania</h1>
+      <div class="divider"></div>
+    </header>
+
+    <!-- Loading -->
+    <section id="view-loading" class="panel" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <h2>Načítavam…</h2>
+    </section>
+
+    <!-- Login -->
+    <section id="view-login" class="panel" hidden style="max-width:420px;margin-left:auto;margin-right:auto">
+      <h2>Prihlásenie organizátora</h2>
+      <p style="margin-bottom:22px">Prihlás sa e-mailom a heslom.</p>
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" autocomplete="username" inputmode="email" required>
+        </div>
+        <div class="field">
+          <label for="password">Heslo</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <p class="form-error" id="login-error" role="alert" hidden></p>
+        <button type="submit" class="btn btn-primary btn-block" id="btn-login">Prihlásiť sa</button>
+      </form>
+    </section>
+
+    <!-- No access -->
+    <section id="view-denied" class="panel" hidden>
+      <h2>Nemáš prístup</h2>
+      <p>Účet <strong id="denied-email"></strong> nie je medzi organizátormi.</p>
+      <button type="button" class="btn" data-logout>Odhlásiť sa</button>
+    </section>
+
+    <!-- Error -->
+    <section id="view-error" class="panel" hidden>
+      <h2>Niečo sa pokazilo</h2>
+      <p id="error-text">Nepodarilo sa načítať výsledky.</p>
+      <button type="button" class="btn btn-primary" id="btn-retry">Skúsiť znova</button>
+      <button type="button" class="btn" data-logout>Odhlásiť sa</button>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="view-dashboard" hidden>
+      <div class="toolbar">
+        <span class="user-line">Prihlásený: <span id="user-email"></span></span>
+        <div class="actions">
+          <button type="button" class="btn btn-small" id="btn-refresh">Obnoviť</button>
+          <button type="button" class="btn btn-small" data-logout>Odhlásiť</button>
+        </div>
+      </div>
+
+      <p class="notice" id="dash-notice" role="alert" hidden></p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="label">Hlasujúcich spolu</div>
+          <div class="value" id="total-voters">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Hlasovanie</div>
+          <div class="value small" id="voting-state">–</div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-block" id="btn-toggle" style="margin-bottom:26px">–</button>
+
+      <div class="results-grid">
+        <section>
+          <h2>Dievčatá</h2>
+          <ol class="result-list" id="results-girls"></ol>
+        </section>
+        <section>
+          <h2>Chlapci</h2>
+          <ol class="result-list" id="results-boys"></ol>
+        </section>
+      </div>
+
+      <p class="updated" id="updated-at"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js"
+          integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ"
+          crossorigin="anonymous"></script>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
