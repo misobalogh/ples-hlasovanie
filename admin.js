@@ -15,13 +15,19 @@
 
   function $(id) { return document.getElementById(id); }
 
+  // UI texts live in the HTML (#i18n), so this file stays English/ASCII.
+  function t(key) {
+    var el = document.querySelector('#i18n [data-msg="' + key + '"]');
+    return el ? el.textContent : key;
+  }
+
   function show(name) {
     VIEWS.forEach(function (v) { $('view-' + v).hidden = v !== name; });
   }
 
   function showError(text) {
     stopTimer();
-    $('error-text').textContent = text || 'Nepodarilo sa načítať výsledky.';
+    $('error-text').textContent = text || t('results-error');
     show('error');
   }
 
@@ -54,7 +60,7 @@
     if (!items.length) {
       var empty = document.createElement('li');
       empty.className = 'empty-note';
-      empty.textContent = 'Žiadni kandidáti.';
+      empty.textContent = t('no-candidates');
       listEl.appendChild(empty);
       return;
     }
@@ -79,11 +85,17 @@
       var n = document.createElement('span');
       n.className = 'rname';
       n.textContent = c.name;
+      if (c.active === false) {
+        var tag = document.createElement('span');
+        tag.className = 'inactive-tag';
+        tag.textContent = ' ' + t('inactive');
+        n.appendChild(tag);
+      }
 
       var cnt = document.createElement('span');
       cnt.className = 'count';
       cnt.textContent = String(c.votes);
-      cnt.setAttribute('aria-label', c.votes + ' hlasov');
+      cnt.setAttribute('aria-label', c.votes + ' ' + t('votes-label'));
 
       var bar = document.createElement('div');
       bar.className = 'bar';
@@ -103,12 +115,12 @@
   function renderVotingState(open) {
     votingOpen = open;
     var state = $('voting-state');
-    state.textContent = open ? 'Otvorené' : 'Zatvorené';
+    state.textContent = open ? t('state-open') : t('state-closed');
     state.classList.toggle('status-open', open);
     state.classList.toggle('status-closed', !open);
 
     var btn = $('btn-toggle');
-    btn.textContent = open ? 'Zatvoriť hlasovanie' : 'Otvoriť hlasovanie';
+    btn.textContent = open ? t('btn-close') : t('btn-open');
     btn.classList.toggle('btn-primary', !open);
     btn.disabled = toggling;
   }
@@ -119,8 +131,8 @@
     renderVotingState(!!data.voting_open);
     renderCategory($('results-girls'), list.filter(function (x) { return x.category === 'dievca'; }));
     renderCategory($('results-boys'), list.filter(function (x) { return x.category === 'chlapec'; }));
-    $('updated-at').textContent = 'Aktualizované o ' + formatTime(new Date()) +
-      ' · automaticky každých 10 s';
+    $('updated-at').textContent = t('updated-prefix') + ' ' + formatTime(new Date()) +
+      ' - ' + t('updated-suffix');
   }
 
   // ---------- data ----------
@@ -152,9 +164,9 @@
       .catch(function (err) {
         console.error(err);
         if (firstLoad) {
-          showError('Nepodarilo sa načítať výsledky. Skontroluj pripojenie a skús znova.');
+          showError(t('results-load-error'));
         } else {
-          setNotice('Obnovenie zlyhalo (pripojenie?). Zobrazujem posledné načítané výsledky.');
+          setNotice(t('refresh-failed'));
         }
       })
       .then(function () {
@@ -174,8 +186,8 @@
     if (toggling || votingOpen === null) { return; }
     var next = !votingOpen;
     var question = next
-      ? 'Naozaj otvoriť hlasovanie?'
-      : 'Naozaj zatvoriť hlasovanie? Ďalšie hlasy už nebude možné odoslať.';
+      ? t('confirm-open')
+      : t('confirm-close');
     if (!window.confirm(question)) { return; }
 
     toggling = true;
@@ -197,7 +209,7 @@
       })
       .catch(function (err) {
         console.error(err);
-        setNotice('Zmena stavu hlasovania zlyhala. Skús znova.');
+        setNotice(t('toggle-failed'));
       })
       .then(function () {
         toggling = false;
@@ -217,21 +229,21 @@
     errEl.hidden = true;
 
     if (!email || !password) {
-      errEl.textContent = 'Vyplň e-mail aj heslo.';
+      errEl.textContent = t('login-empty');
       errEl.hidden = false;
       return;
     }
 
     btn.disabled = true;
-    btn.textContent = 'Prihlasujem…';
+    btn.textContent = t('logging-in');
 
     client.auth.signInWithPassword({ email: email, password: password })
       .then(function (res) {
         if (res.error) {
           var invalid = res.error.status === 400 || /invalid/i.test(res.error.message || '');
           errEl.textContent = invalid
-            ? 'Nesprávny e-mail alebo heslo.'
-            : 'Prihlásenie zlyhalo. Skontroluj pripojenie a skús znova.';
+            ? t('login-invalid')
+            : t('login-failed');
           errEl.hidden = false;
           return;
         }
@@ -240,12 +252,12 @@
       })
       .catch(function (err) {
         console.error(err);
-        errEl.textContent = 'Prihlásenie zlyhalo. Skontroluj pripojenie a skús znova.';
+        errEl.textContent = t('login-failed');
         errEl.hidden = false;
       })
       .then(function () {
         btn.disabled = false;
-        btn.textContent = 'Prihlásiť sa';
+        btn.textContent = t('login-button');
       });
   }
 
@@ -268,7 +280,7 @@
   });
 
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
-    $('error-text').textContent = 'Nepodarilo sa načítať aplikáciu. Skontroluj pripojenie a skús znova.';
+    $('error-text').textContent = t('app-load-error');
     show('error');
     $('btn-retry').addEventListener('click', function () { window.location.reload(); });
     return;

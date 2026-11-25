@@ -16,6 +16,12 @@
 
   function $(id) { return document.getElementById(id); }
 
+  // UI texts live in the HTML (#i18n), so this file stays English/ASCII.
+  function t(key) {
+    var el = document.querySelector('#i18n [data-msg="' + key + '"]');
+    return el ? el.textContent : key;
+  }
+
   function show(name) {
     VIEWS.forEach(function (v) { $('view-' + v).hidden = v !== name; });
     window.scrollTo(0, 0);
@@ -55,7 +61,7 @@
 
   function showError(text) {
     $('error-text').textContent = text ||
-      'Nepodarilo sa načítať údaje. Skontroluj pripojenie na internet.';
+      t('load-error');
     show('error');
   }
 
@@ -66,7 +72,7 @@
     if (!items.length) {
       var p = document.createElement('p');
       p.className = 'empty-note';
-      p.textContent = 'Zatiaľ tu nie sú žiadni kandidáti.';
+      p.textContent = t('no-candidates');
       container.appendChild(p);
       return;
     }
@@ -113,13 +119,13 @@
 
     var hint = $('submit-hint');
     if (ready) {
-      hint.textContent = 'Všetko vybraté, môžeš odoslať.';
+      hint.textContent = t('hint-ready');
     } else if (girl === null && boy === null) {
-      hint.textContent = 'Vyber kráľovnú aj kráľa.';
+      hint.textContent = t('hint-none');
     } else if (girl === null) {
-      hint.textContent = 'Ešte vyber kráľovnú.';
+      hint.textContent = t('hint-girl');
     } else {
-      hint.textContent = 'Ešte vyber kráľa.';
+      hint.textContent = t('hint-boy');
     }
   }
 
@@ -132,9 +138,9 @@
       sp.className = 'spinner-inline';
       sp.setAttribute('aria-hidden', 'true');
       btn.appendChild(sp);
-      btn.appendChild(document.createTextNode('Odosielam…'));
+      btn.appendChild(document.createTextNode(t('submitting')));
     } else {
-      btn.textContent = 'Odoslať hlas';
+      btn.textContent = t('submit');
     }
     btn.setAttribute('aria-busy', on ? 'true' : 'false');
     updateSubmitState();
@@ -151,7 +157,7 @@
   function load() {
     if (hasVoted()) { show('already'); return; }
     if (!client) {
-      showError('Nepodarilo sa načítať aplikáciu. Skontroluj pripojenie a skús znova.');
+      showError(t('app-load-error'));
       return;
     }
     show('loading');
@@ -212,18 +218,18 @@
         } else if (msg === 'voting_closed') {
           show('closed');
         } else if (msg === 'invalid_girl' || msg === 'invalid_boy') {
-          setFormError('Zoznam kandidátov sa medzitým zmenil. Načítavam ho znova…');
+          setFormError(t('candidates-changed'));
           window.setTimeout(load, 1500);
         } else {
           console.error(res.error);
-          setFormError('Hlas sa nepodarilo odoslať. Skontroluj pripojenie a skús znova.');
+          setFormError(t('submit-error'));
         }
       })
       .catch(function (err) {
         // Network failure. Retrying is safe: the same device_id is reused,
         // so a vote that did reach the server comes back as already_voted.
         console.error(err);
-        setFormError('Hlas sa nepodarilo odoslať. Skontroluj pripojenie a skús znova.');
+        setFormError(t('submit-error'));
       })
       .then(function () { setSubmitting(false); });
   }
@@ -233,7 +239,7 @@
   document.querySelectorAll('[data-event-title]').forEach(function (el) {
     el.textContent = cfg.EVENT_TITLE;
   });
-  document.title = 'Kráľ a kráľovná plesu · ' + cfg.EVENT_TITLE;
+  document.title = t('page-title') + ' - ' + cfg.EVENT_TITLE;
 
   if (window.supabase && typeof window.supabase.createClient === 'function') {
     client = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_PUBLISHABLE_KEY, {

@@ -419,7 +419,7 @@ h2 {
 .result-item.top-2 .rank { color: #d6dce8; }
 .result-item.top-3 .rank { color: #d9925a; }
 .result-item.top-1 .bar > span { background: linear-gradient(90deg, var(--gold-2), #f3d98f); }
-.result-item.inactive .rname::after { content: ' (neaktívny)'; color: var(--muted); font-weight: 400; font-size: 13px; }
+.result-item .inactive-tag { color: var(--muted); font-weight: 400; font-size: 13px; }
 
 .updated { margin-top: 18px; text-align: center; color: var(--muted); font-size: 13px; }
 

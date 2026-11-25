@@ -26,6 +26,7 @@
     <p class="qr-cta">Naskenuj a hlasuj</p>
     <div class="qr-box" id="qr" role="img" aria-label="QR kód na hlasovanie"></div>
     <p class="qr-url" id="qr-url"></p>
+    <span id="msg-qr-error" hidden>QR knižnicu sa nepodarilo načítať. Skontroluj pripojenie.</span>
 
     <p class="no-print" style="margin-top:22px">
       <button type="button" class="btn" onclick="window.print()">Vytlačiť</button>
@@ -52,7 +53,7 @@
 
       var box = document.getElementById('qr');
       if (typeof window.qrcode !== 'function') {
-        box.textContent = 'QR knižnicu sa nepodarilo načítať. Skontroluj pripojenie.';
+        box.textContent = document.getElementById('msg-qr-error').textContent;
         return;
       }
 

@@ -252,3 +252,6 @@ grant execute on function public.cast_vote(uuid, bigint, bigint) to anon, authen
 grant execute on function public.is_admin()                      to authenticated;
 grant execute on function public.get_results()                   to authenticated;
 grant execute on function public.set_voting_open(boolean)        to authenticated;
+
+-- Tell the Supabase REST API (PostgREST) to pick up the new tables/functions now.
+notify pgrst, 'reload schema';

@@ -67,16 +67,16 @@ Mobily, ktoré testovali, majú v prehliadači uložený príznak „už hlasova
 
 ### Ručne otvoriť / zatvoriť hlasovanie
 ```sql
-update public.settings set voting_open = false;  -- true = otvorené
+update public.settings set voting_open = false;  -- true = open
 ```
 
 ### Výsledky priamo v SQL
 ```sql
 select c.category, c.name,
-       count(v.id) as hlasy
+       count(v.id) as votes
 from public.candidates c
 left join public.votes v on v.girl_id = c.id or v.boy_id = c.id
-group by c.id order by c.category, hlasy desc, c.name;
+group by c.id order by c.category, votes desc, c.name;
 ```
 
 ## Obmedzenia
