@@ -223,12 +223,12 @@
     var btn = $('btn-login');
     if (btn.disabled) { return; }
 
-    var email = $('email').value.trim();
+    var email = cfg.ADMIN_EMAIL;
     var password = $('password').value;
     var errEl = $('login-error');
     errEl.hidden = true;
 
-    if (!email || !password) {
+    if (!password) {
       errEl.textContent = t('login-empty');
       errEl.hidden = false;
       return;
@@ -295,6 +295,7 @@
     },
   });
 
+  $('email').value = cfg.ADMIN_EMAIL;
   $('login-form').addEventListener('submit', login);
   $('btn-refresh').addEventListener('click', function () { loadResults(false); });
   $('btn-toggle').addEventListener('click', toggleVoting);

@@ -17,8 +17,8 @@ Bezpečnosť stojí výhradne na RLS a `SECURITY DEFINER` funkciách. V repe je 
 
 1. **SQL Editor → New query** → vlož celý obsah `setup.sql` → **Run**. (Pri opakovanom spustení sa nič nezduplikuje ani nezmaže.)
 2. **Authentication → Sign In / Providers** → vypni **Allow new users to sign up** → Save.
-3. **Authentication → Users → Add user → Create new user**: e-mail + heslo, zaškrtni **Auto Confirm User**.
-4. **SQL Editor**: pridaj e-mail organizátora do `admins` (snippet nižšie).
+3. **Authentication → Users → Add user → Create new user**: e-mail `admin@ples.local` (hodnota `ADMIN_EMAIL` v `config.js`), zvoľ silné heslo, zaškrtni **Auto Confirm User**. Toto heslo je spoločné pre všetkých organizátorov, na `vysledky.html` sa zadáva iba ono.
+4. **SQL Editor**: pridaj tento e-mail do `admins` (snippet nižšie).
 
 ## 2. GitHub Pages
 
@@ -36,10 +36,10 @@ Názov plesu zmeníš v `config.js` (`EVENT_TITLE`). Pri ďalšom plese zmeň aj
 ### Pridať admina (organizátora)
 Používateľa najprv vytvor v Authentication → Users, potom:
 ```sql
-insert into public.admins (email) values (lower('meno@skola.sk'))
+insert into public.admins (email) values ('admin@ples.local')
 on conflict do nothing;
 ```
-Odobrať: `delete from public.admins where email = lower('meno@skola.sk');`
+Zmena hesla: Authentication → Users → používateľ → Reset password / Update user. Heslo zmeň, ak unikne alebo po plese.
 
 ### Zmeniť kandidátov
 Premenovať placeholder:

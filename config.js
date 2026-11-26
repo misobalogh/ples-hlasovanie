@@ -4,6 +4,9 @@ window.PLES_CONFIG = Object.freeze({
   EVENT_TITLE: 'Ples 2026',
   SUPABASE_URL: 'https://scdfmuupgotdumgzsxct.supabase.co',
   SUPABASE_PUBLISHABLE_KEY: 'sb_publishable__IPzjL8bsrt-hUTxjakVfw_IMdNkkFb',
+  // Shared organizer account. The results page asks only for its password.
+  // This email is not secret: access is granted by public.admins plus the password.
+  ADMIN_EMAIL: 'admin@ples.local',
   // Optional: fixed voting URL for qr.html. Leave empty to derive it
   // automatically from the address of qr.html (same folder, index.html).
   VOTE_URL: '',

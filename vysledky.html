@@ -34,15 +34,13 @@
     <!-- Login -->
     <section id="view-login" class="panel" hidden style="max-width:420px;margin-left:auto;margin-right:auto">
       <h2>Prihlásenie organizátora</h2>
-      <p style="margin-bottom:22px">Prihlás sa e-mailom a heslom.</p>
+      <p style="margin-bottom:22px">Zadaj heslo organizátorov.</p>
       <form id="login-form" novalidate>
-        <div class="field">
-          <label for="email">E-mail</label>
-          <input id="email" name="email" type="email" autocomplete="username" inputmode="email" required>
-        </div>
+        <!-- Hidden account name so password managers can save the password. -->
+        <input id="email" name="username" type="text" autocomplete="username" hidden readonly>
         <div class="field">
           <label for="password">Heslo</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" required>
+          <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
         </div>
         <p class="form-error" id="login-error" role="alert" hidden></p>
         <button type="submit" class="btn btn-primary btn-block" id="btn-login">Prihlásiť sa</button>
@@ -120,9 +118,9 @@
     <span data-msg="confirm-open">Naozaj otvoriť hlasovanie?</span>
     <span data-msg="confirm-close">Naozaj zatvoriť hlasovanie? Ďalšie hlasy už nebude možné odoslať.</span>
     <span data-msg="toggle-failed">Zmena stavu hlasovania zlyhala. Skús znova.</span>
-    <span data-msg="login-empty">Vyplň e-mail aj heslo.</span>
+    <span data-msg="login-empty">Zadaj heslo.</span>
     <span data-msg="logging-in">Prihlasujem…</span>
-    <span data-msg="login-invalid">Nesprávny e-mail alebo heslo.</span>
+    <span data-msg="login-invalid">Nesprávne heslo.</span>
     <span data-msg="login-failed">Prihlásenie zlyhalo. Skontroluj pripojenie a skús znova.</span>
     <span data-msg="login-button">Prihlásiť sa</span>
     <span data-msg="votes-label">hlasov</span>

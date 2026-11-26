@@ -403,6 +403,7 @@ h2 {
 }
 
 .panel p { color: var(--muted); margin: 10px 0 0; }
+.panel .form-error { color: var(--danger); }
 .panel .btn { margin-top: 22px; }
 
 .panel-icon {
