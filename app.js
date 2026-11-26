@@ -7,13 +7,8 @@
   var KEY_VOTED = cfg.STORAGE_PREFIX + ':voted';
 
   var VIEWS = ['loading', 'error', 'closed', 'already', 'thanks', 'form'];
-  var TABS = ['girl', 'boy'];
-  // Show the name search only when a category has more candidates than this.
-  var SEARCH_MIN_CANDIDATES = 8;
-  var AUTO_ADVANCE_MS = 350;
-
-  var activeTab = 'girl';
-  var advanceTimer = null;
+  var FIELDS = ['girl-first', 'girl-last', 'boy-first', 'boy-last'];
+  var HAS_LETTER = /\p{L}/u;
 
   var client = null;
   var submitting = false;
@@ -72,128 +67,38 @@
     show('error');
   }
 
-  // ---------- rendering ----------
+  // ---------- form ----------
 
-  function renderList(container, groupName, items) {
-    container.replaceChildren();
-    if (!items.length) {
-      var p = document.createElement('p');
-      p.className = 'empty-note';
-      p.textContent = t('no-candidates');
-      container.appendChild(p);
-      return;
-    }
-    items.forEach(function (c) {
-      var label = document.createElement('label');
-      label.className = 'card';
-      label.setAttribute('data-search', normalize(c.name));
+  function value(id) { return $(id).value.replace(/\s+/g, ' ').trim(); }
 
-      var input = document.createElement('input');
-      input.type = 'radio';
-      input.name = groupName;
-      input.value = String(c.id);
-
-      var dot = document.createElement('span');
-      dot.className = 'dot';
-      dot.setAttribute('aria-hidden', 'true');
-
-      var name = document.createElement('span');
-      name.className = 'name';
-      name.textContent = c.name;
-
-      label.appendChild(input);
-      label.appendChild(dot);
-      label.appendChild(name);
-      container.appendChild(label);
-    });
+  function validPart(id) {
+    var v = value(id);
+    return v.length > 0 && v.length <= 40 && HAS_LETTER.test(v);
   }
 
-  // Lowercase and strip diacritics, so "tomas" matches "Tomas" with accents.
-  function normalize(text) {
-    return String(text).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  function markField(id, bad) {
+    var input = $(id);
+    input.classList.toggle('is-invalid', bad);
+    if (bad) { input.setAttribute('aria-invalid', 'true'); } else { input.removeAttribute('aria-invalid'); }
   }
 
-  function selectedInput(groupName) {
-    return document.querySelector('input[name="' + groupName + '"]:checked');
+  // Lowercase without diacritics, for the accusative heuristic below.
+  function plain(text) {
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   }
 
-  function selectedName(groupName) {
-    var input = selectedInput(groupName);
-    if (!input) { return null; }
-    var name = input.parentNode.querySelector('.name');
-    return name ? name.textContent : null;
+  // "Luciu Novakovu" is the accusative form people tend to type after
+  // "I vote for ...". Feminine names in the base form almost never end in -u.
+  function looksDeclinedGirl() {
+    return /u$/.test(plain(value('girl-first'))) || /(ovu|sku|cku|dzu|nu)$/.test(plain(value('girl-last')));
   }
 
-  function listFor(tab) { return $(tab === 'girl' ? 'list-girls' : 'list-boys'); }
+  var warnedFor = null; // the girl name the warning was shown for
 
-  function setTab(tab, focusTab) {
-    if (advanceTimer) { window.clearTimeout(advanceTimer); advanceTimer = null; }
-    var changed = tab !== activeTab;
-    activeTab = tab;
-    TABS.forEach(function (name) {
-      var btn = $('tab-' + name);
-      var on = name === tab;
-      btn.setAttribute('aria-selected', on ? 'true' : 'false');
-      btn.tabIndex = on ? 0 : -1;
-      $('panel-' + name).hidden = !on;
-    });
-    if (focusTab) { $('tab-' + tab).focus(); }
-    if (changed) {
-      $('search').value = '';
-      applySearch();
-      // Bring the start of the list into view if the user scrolled down.
-      var head = document.querySelector('.picker-head');
-      if (head && head.getBoundingClientRect().top < 0) {
-        head.scrollIntoView({ block: 'start' });
-      }
-    }
-    updateSearchVisibility();
-  }
-
-  function updateSearchVisibility() {
-    var count = listFor(activeTab).querySelectorAll('.card').length;
-    var tooFew = count <= SEARCH_MIN_CANDIDATES;
-    $('search-wrap').hidden = tooFew;
-    if (tooFew && $('search').value) { $('search').value = ''; applySearch(); }
-  }
-
-  function applySearch() {
-    var query = normalize($('search').value);
-    var list = listFor(activeTab);
-    var cards = list.querySelectorAll('.card');
-    var visible = 0;
-    Array.prototype.forEach.call(cards, function (card) {
-      var match = !query || card.getAttribute('data-search').indexOf(query) !== -1;
-      card.hidden = !match;
-      if (match) { visible += 1; }
-    });
-    $('no-match').hidden = !(cards.length && visible === 0);
-    $('search-clear').hidden = !query;
-  }
-
-  function selectedValue(groupName) {
-    var el = document.querySelector('input[name="' + groupName + '"]:checked');
-    return el ? Number(el.value) : null;
-  }
-
-  function updateSubmitState() {
-    // Fallback highlight for browsers without :has()
-    document.querySelectorAll('.card').forEach(function (card) {
-      var input = card.querySelector('input');
-      card.classList.toggle('is-checked', !!(input && input.checked));
-    });
-
-    var girl = selectedValue('girl');
-    var boy = selectedValue('boy');
-    var ready = girl !== null && boy !== null;
-    $('btn-submit').disabled = !ready || submitting;
-
-    var girlName = selectedName('girl');
-    var boyName = selectedName('boy');
-    $('tab-pick-girl').textContent = girlName || t('tab-girl-empty');
-    $('tab-pick-boy').textContent = boyName || t('tab-boy-empty');
-    $('tab-girl').classList.toggle('is-done', girl !== null);
-    $('tab-boy').classList.toggle('is-done', boy !== null);
+  function resetForm() {
+    FIELDS.forEach(function (id) { $(id).value = ''; markField(id, false); });
+    $('warn-girl').hidden = true;
+    warnedFor = null;
   }
 
   function setSubmitting(on) {
@@ -210,7 +115,7 @@
       btn.textContent = t('submit');
     }
     btn.setAttribute('aria-busy', on ? 'true' : 'false');
-    updateSubmitState();
+    btn.disabled = on;
   }
 
   function setFormError(text) {
@@ -229,31 +134,12 @@
     }
     show('loading');
 
-    var settingsReq = client.from('settings').select('voting_open').limit(1).maybeSingle();
-    var candidatesReq = client
-      .from('candidates')
-      .select('id, name, category')
-      .eq('active', true)
-      .order('sort_order', { ascending: true })
-      .order('name', { ascending: true });
-
-    Promise.all([settingsReq, candidatesReq])
+    client.from('settings').select('voting_open').limit(1).maybeSingle()
       .then(function (res) {
-        var s = res[0];
-        var c = res[1];
-        if (s.error || c.error) { throw s.error || c.error; }
-
-        if (!s.data || !s.data.voting_open) { show('closed'); return; }
-
-        var girls = c.data.filter(function (x) { return x.category === 'dievca'; });
-        var boys = c.data.filter(function (x) { return x.category === 'chlapec'; });
-        renderList($('list-girls'), 'girl', girls);
-        renderList($('list-boys'), 'boy', boys);
+        if (res.error) { throw res.error; }
+        if (!res.data || !res.data.voting_open) { show('closed'); return; }
         setFormError('');
-        $('search').value = '';
-        activeTab = null;
-        setTab('girl');
-        updateSubmitState();
+        resetForm();
         show('form');
       })
       .catch(function (err) {
@@ -262,23 +148,53 @@
       });
   }
 
+  function showThanks() {
+    // GIFs load only now, so voters do not download them up front.
+    document.querySelectorAll('img[data-gif]').forEach(function (img) {
+      if (!img.getAttribute('src')) { img.src = img.getAttribute('data-gif'); }
+    });
+    show('thanks');
+  }
+
   function submit(ev) {
     ev.preventDefault();
     if (submitting) { return; } // guards against double tap / double click
 
-    var girl = selectedValue('girl');
-    var boy = selectedValue('boy');
-    if (girl === null || boy === null) { updateSubmitState(); return; }
+    var girlOk = validPart('girl-first') && validPart('girl-last');
+    var boyOk = validPart('boy-first') && validPart('boy-last');
+    FIELDS.forEach(function (id) { markField(id, !validPart(id)); });
+    if (!girlOk || !boyOk) {
+      setFormError(t(!girlOk ? 'need-girl' : 'need-boy'));
+      var firstBad = FIELDS.filter(function (id) { return !validPart(id); })[0];
+      if (firstBad) { $(firstBad).focus(); }
+      return;
+    }
+
+    // Ask once if the queen's name looks declined; a second tap sends it.
+    var girlName = value('girl-first') + ' ' + value('girl-last');
+    if (looksDeclinedGirl() && warnedFor !== girlName) {
+      warnedFor = girlName;
+      $('warn-girl').hidden = false;
+      setFormError('');
+      $('card-girl').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return;
+    }
 
     setFormError('');
     setSubmitting(true);
 
     client
-      .rpc('cast_vote', { p_device_id: getDeviceId(), p_girl_id: girl, p_boy_id: boy })
+      .rpc('cast_vote', {
+        p_device_id: getDeviceId(),
+        p_girl_first: value('girl-first'),
+        p_girl_last: value('girl-last'),
+        p_boy_first: value('boy-first'),
+        p_boy_last: value('boy-last'),
+      })
       .then(function (res) {
         if (!res.error) {
           markVoted();
-          show('thanks');
+          showThanks();
           return;
         }
         var msg = res.error.message || '';
@@ -288,8 +204,7 @@
         } else if (msg === 'voting_closed') {
           show('closed');
         } else if (msg === 'invalid_girl' || msg === 'invalid_boy') {
-          setFormError(t('candidates-changed'));
-          window.setTimeout(load, 1500);
+          setFormError(t(msg === 'invalid_girl' ? 'need-girl' : 'need-boy'));
         } else {
           console.error(res.error);
           setFormError(t('submit-error'));
@@ -318,41 +233,18 @@
   }
 
   getDeviceId(); // create the id on the first visit
-  $('view-form').addEventListener('change', function (ev) {
-    updateSubmitState();
-    var target = ev.target;
-    if (!target || target.type !== 'radio') { return; }
-    // Auto-advance to the other category if it has no pick yet.
-    var other = target.name === 'girl' ? 'boy' : 'girl';
-    if (target.name === activeTab && selectedValue(other) === null) {
-      if (advanceTimer) { window.clearTimeout(advanceTimer); }
-      advanceTimer = window.setTimeout(function () {
-        advanceTimer = null;
-        setTab(other);
-      }, AUTO_ADVANCE_MS);
-    }
-  });
-
-  document.querySelectorAll('.tab').forEach(function (btn) {
-    btn.addEventListener('click', function () { setTab(btn.getAttribute('data-tab')); });
-  });
-
-  // Arrow keys move between tabs (WAI-ARIA tabs pattern).
-  document.querySelector('.tabs').addEventListener('keydown', function (ev) {
-    if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') { return; }
-    ev.preventDefault();
-    setTab(activeTab === 'girl' ? 'boy' : 'girl', true);
-  });
-
-  $('search').addEventListener('input', applySearch);
-  $('search').addEventListener('keydown', function (ev) {
-    // Enter in the search field must not submit the vote.
-    if (ev.key === 'Enter') { ev.preventDefault(); $('search').blur(); }
-  });
-  $('search-clear').addEventListener('click', function () {
-    $('search').value = '';
-    applySearch();
-    $('search').focus();
+  FIELDS.forEach(function (id, i) {
+    var input = $(id);
+    input.addEventListener('input', function () {
+      if (input.classList.contains('is-invalid') && validPart(id)) { markField(id, false); }
+      if (id.indexOf('girl') === 0) { $('warn-girl').hidden = true; warnedFor = null; }
+    });
+    // Enter moves to the next field; on the last one it submits.
+    input.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter' || i === FIELDS.length - 1) { return; }
+      ev.preventDefault();
+      $(FIELDS[i + 1]).focus();
+    });
   });
   $('view-form').addEventListener('submit', submit);
   $('btn-retry').addEventListener('click', function () {

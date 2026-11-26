@@ -41,27 +41,16 @@ on conflict do nothing;
 ```
 Zmena hesla: Authentication → Users → používateľ → Reset password / Update user. Heslo zmeň, ak unikne alebo po plese.
 
-### Zmeniť kandidátov
-Premenovať placeholder:
-```sql
-update public.candidates set name = 'Skutočné Meno' where name = 'Lucia Nováková';
-```
-Nahradiť všetkých naraz (iba kým nie sú žiadne hlasy, inak najprv vymaž hlasy):
-```sql
-delete from public.votes;
-delete from public.candidates;
-insert into public.candidates (name, category, sort_order) values
-  ('Meno Dievča 1', 'dievca', 1),
-  ('Meno Dievča 2', 'dievca', 2),
-  ('Meno Chlapec 1', 'chlapec', 1),
-  ('Meno Chlapec 2', 'chlapec', 2);
-```
-Skryť kandidáta bez mazania (napr. odstúpil): `update public.candidates set active = false where id = 3;`
-Pozrieť ID: `select * from public.candidates order by category, sort_order;`
+### Ako sa počítajú mená
+Hlasujúci píšu meno a priezvisko ručne (zoznam žiakov nie je). Databáza z nich spraví kľúč bez diakritiky, veľkých písmen, interpunkcie a so zoradenými slovami, takže `Lucia Nováková`, `NOVAKOVA lucia` aj `Nováková  Lucia` sú jeden človek. Iné tvary (`Luciu Novákovú`) a preklepy (`Nowakova`) spája organizátor na `vysledky.html`: stránka navrhne podobné mená, dá sa spojiť aj ručne cez „Spojiť s…“, spojenie sa dá rozpojiť a nezmysly skryť.
+
+Pozrieť surové hlasy: `select * from public.votes order by created_at desc;`
 
 ### Vymazať testovacie hlasy
 ```sql
 delete from public.votes;
+delete from public.name_merges;
+delete from public.hidden_names;
 ```
 Mobily, ktoré testovali, majú v prehliadači uložený príznak „už hlasoval“. Vymaž dáta stránky v prehliadači, alebo zmeň `STORAGE_PREFIX` v `config.js` (resetuje všetky zariadenia).
 
@@ -72,11 +61,11 @@ update public.settings set voting_open = false;  -- true = open
 
 ### Výsledky priamo v SQL
 ```sql
-select c.category, c.name,
-       count(v.id) as votes
-from public.candidates c
-left join public.votes v on v.girl_id = c.id or v.boy_id = c.id
-group by c.id order by c.category, votes desc, c.name;
+-- before manual merges; the results page applies merges and hidden names
+select 'dievca' as category, girl_key as name, count(*) as votes from public.votes group by girl_key
+union all
+select 'chlapec', boy_key, count(*) from public.votes group by boy_key
+order by category, votes desc;
 ```
 
 ## Obmedzenia

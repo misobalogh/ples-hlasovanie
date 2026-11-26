@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b0a1f">
+  <meta name="theme-color" content="#ff8cc6">
   <meta name="robots" content="noindex, nofollow">
   <title>Výsledky · Kráľ a kráľovná plesu</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -87,14 +87,26 @@
 
       <button type="button" class="btn btn-block" id="btn-toggle" style="margin-bottom:26px">–</button>
 
+      <p class="help-note">Rovnaké mená sa spočítajú automaticky aj s inou diakritikou, veľkými písmenami alebo prehodeným poradím. Iné tvary a preklepy (Luciu Novákovú, Novakova) spoj ručne. Podobné mená sú navrhnuté nad zoznamom. Nezmysly skry.</p>
+
       <div class="results-grid">
         <section>
-          <h2>Dievčatá</h2>
-          <ol class="result-list" id="results-girls"></ol>
+          <h2>Kráľovná</h2>
+          <div class="suggestions" id="sugg-dievca" hidden></div>
+          <ol class="result-list" id="results-dievca"></ol>
+          <details class="hidden-box" id="hidden-dievca" hidden>
+            <summary>Skryté mená (<span id="hidden-count-dievca">0</span>)</summary>
+            <ol class="result-list" id="hidden-list-dievca"></ol>
+          </details>
         </section>
         <section>
-          <h2>Chlapci</h2>
-          <ol class="result-list" id="results-boys"></ol>
+          <h2>Kráľ</h2>
+          <div class="suggestions" id="sugg-chlapec" hidden></div>
+          <ol class="result-list" id="results-chlapec"></ol>
+          <details class="hidden-box" id="hidden-chlapec" hidden>
+            <summary>Skryté mená (<span id="hidden-count-chlapec">0</span>)</summary>
+            <ol class="result-list" id="hidden-list-chlapec"></ol>
+          </details>
         </section>
       </div>
 
@@ -107,7 +119,18 @@
     <span data-msg="results-error">Nepodarilo sa načítať výsledky.</span>
     <span data-msg="results-load-error">Nepodarilo sa načítať výsledky. Skontroluj pripojenie a skús znova.</span>
     <span data-msg="app-load-error">Nepodarilo sa načítať aplikáciu. Skontroluj pripojenie a skús znova.</span>
-    <span data-msg="no-candidates">Žiadni kandidáti.</span>
+    <span data-msg="no-names">Zatiaľ žiadne hlasy.</span>
+    <span data-msg="sugg-title">Možno ten istý človek?</span>
+    <span data-msg="merge">Spojiť</span>
+    <span data-msg="not-same">Nie je</span>
+    <span data-msg="merge-with">Spojiť s…</span>
+    <span data-msg="confirm-merge">Spojiť „{a}“ do „{b}“? Hlasy sa spočítajú. Dá sa to vrátiť.</span>
+    <span data-msg="unmerge">rozpojiť</span>
+    <span data-msg="written-as">Napísané ako:</span>
+    <span data-msg="hide">Skryť</span>
+    <span data-msg="unhide">Vrátiť do výsledkov</span>
+    <span data-msg="confirm-hide">Skryť „{a}“ z výsledkov? Dá sa to vrátiť.</span>
+    <span data-msg="action-failed">Zmena sa nepodarila. Skontroluj pripojenie a skús znova.</span>
     <span data-msg="state-open">Otvorené</span>
     <span data-msg="state-closed">Zatvorené</span>
     <span data-msg="btn-close">Zatvoriť hlasovanie</span>
@@ -124,7 +147,6 @@
     <span data-msg="login-failed">Prihlásenie zlyhalo. Skontroluj pripojenie a skús znova.</span>
     <span data-msg="login-button">Prihlásiť sa</span>
     <span data-msg="votes-label">hlasov</span>
-    <span data-msg="inactive">(neaktívny)</span>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js"

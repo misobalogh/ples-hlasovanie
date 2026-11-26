@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b0a1f">
+  <meta name="theme-color" content="#ff8cc6">
   <title>Kráľ a kráľovná plesu</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -62,44 +62,50 @@
       </svg>
       <h2>Ďakujeme za tvoj hlas!</h2>
       <p>Tvoj hlas bol zaznamenaný. Kráľa a kráľovnú vyhlásime počas plesu.</p>
+      <div class="gifs">
+        <img data-gif="https://media.giphy.com/media/qLVGt6Go1dQFp4qVcg/200w.webp" alt="Barbie máva z ružového kabrioletu" width="200" height="200">
+        <img data-gif="https://media.giphy.com/media/xoHntNXFYkfzGAftEv/200w.webp" alt="Ken si nasadzuje druhé slnečné okuliare" width="200" height="200">
+      </div>
+      <p class="gif-credit">GIFy: Warner Bros. cez GIPHY</p>
     </section>
 
     <!-- Voting form -->
-    <form id="view-form" hidden novalidate>
-      <p class="subtitle" style="text-align:center;margin:-8px 0 20px">Vyber jedno dievča a jedného chlapca a odošli hlas.</p>
+    <form id="view-form" hidden novalidate autocomplete="off">
+      <p class="intro">Napíš meno a priezvisko <strong>v základnom tvare</strong>, tak ako sa človek volá, napr. <em>Lucia Nováková</em>, nie <em>Luciu Novákovú</em>. Inak sa hlas nemusí započítať.</p>
 
-      <div class="picker-head">
-        <div class="tabs" role="tablist" aria-label="Kategória">
-          <button type="button" class="tab" role="tab" id="tab-girl" data-tab="girl" aria-controls="panel-girl" aria-selected="true">
-            <span class="tab-role">Kráľovná</span>
-            <span class="tab-pick" id="tab-pick-girl">dievča</span>
-            <svg class="tab-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <button type="button" class="tab" role="tab" id="tab-boy" data-tab="boy" aria-controls="panel-boy" aria-selected="false" tabindex="-1">
-            <span class="tab-role">Kráľ</span>
-            <span class="tab-pick" id="tab-pick-boy">chlapec</span>
-            <svg class="tab-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+      <fieldset class="name-card" id="card-girl">
+        <legend class="name-card-title"><span class="role">Kráľovná</span><span class="who">dievča</span></legend>
+        <div class="name-row">
+          <div class="field">
+            <label for="girl-first">Meno</label>
+            <input id="girl-first" name="girl-first" type="text" maxlength="40" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next">
+          </div>
+          <div class="field">
+            <label for="girl-last">Priezvisko</label>
+            <input id="girl-last" name="girl-last" type="text" maxlength="40" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next">
+          </div>
         </div>
-        <div class="search" id="search-wrap" hidden>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <input type="search" id="search" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="Hľadať meno…" aria-label="Hľadať meno">
-          <button type="button" class="search-clear" id="search-clear" aria-label="Vymazať hľadanie" hidden>&times;</button>
-        </div>
-      </div>
+        <p class="field-warning" id="warn-girl" hidden>Je to v základnom tvare? Napríklad <em>Nováková</em>, nie <em>Novákovú</em>. Ak áno, ťukni znova na Odoslať.</p>
+      </fieldset>
 
-      <div class="tab-panel" role="tabpanel" id="panel-girl" aria-labelledby="tab-girl">
-        <div class="cards" id="list-girls" role="radiogroup" aria-label="Kráľovná: dievča"></div>
-      </div>
-      <div class="tab-panel" role="tabpanel" id="panel-boy" aria-labelledby="tab-boy" hidden>
-        <div class="cards" id="list-boys" role="radiogroup" aria-label="Kráľ: chlapec"></div>
-      </div>
-      <p class="empty-note" id="no-match" hidden>Nikto taký sa nenašiel.</p>
+      <fieldset class="name-card" id="card-boy">
+        <legend class="name-card-title"><span class="role">Kráľ</span><span class="who">chlapec</span></legend>
+        <div class="name-row">
+          <div class="field">
+            <label for="boy-first">Meno</label>
+            <input id="boy-first" name="boy-first" type="text" maxlength="40" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="next">
+          </div>
+          <div class="field">
+            <label for="boy-last">Priezvisko</label>
+            <input id="boy-last" name="boy-last" type="text" maxlength="40" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="send">
+          </div>
+        </div>
+      </fieldset>
 
       <div class="submit-bar">
         <div class="inner">
           <p class="form-error" id="form-error" role="alert" hidden></p>
-          <button type="submit" class="btn btn-primary btn-block" id="btn-submit" disabled>Odoslať hlas</button>
+          <button type="submit" class="btn btn-primary btn-block" id="btn-submit">Odoslať hlas</button>
         </div>
       </div>
     </form>
@@ -110,12 +116,10 @@
     <span data-msg="page-title">Kráľ a kráľovná plesu</span>
     <span data-msg="load-error">Nepodarilo sa načítať údaje. Skontroluj pripojenie na internet.</span>
     <span data-msg="app-load-error">Nepodarilo sa načítať aplikáciu. Skontroluj pripojenie a skús znova.</span>
-    <span data-msg="no-candidates">Zatiaľ tu nie sú žiadni kandidáti.</span>
-    <span data-msg="tab-girl-empty">dievča</span>
-    <span data-msg="tab-boy-empty">chlapec</span>
+    <span data-msg="need-girl">Doplň meno aj priezvisko kráľovnej.</span>
+    <span data-msg="need-boy">Doplň meno aj priezvisko kráľa.</span>
     <span data-msg="submitting">Odosielam…</span>
     <span data-msg="submit">Odoslať hlas</span>
-    <span data-msg="candidates-changed">Zoznam kandidátov sa medzitým zmenil. Načítavam ho znova…</span>
     <span data-msg="submit-error">Hlas sa nepodarilo odoslať. Skontroluj pripojenie a skús znova.</span>
   </div>
 
