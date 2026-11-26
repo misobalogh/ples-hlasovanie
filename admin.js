@@ -409,7 +409,6 @@
 
   function enterWithSession(session) {
     currentEmail = (session && session.user && session.user.email) || '';
-    $('user-email').textContent = currentEmail;
     show('loading');
     loadResults(true);
   }

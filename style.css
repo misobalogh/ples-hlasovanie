@@ -303,7 +303,6 @@ h2 {
 .gifs img:first-child { transform: rotate(-3deg); }
 .gifs img:last-child { transform: rotate(3deg); }
 
-.panel .gif-credit { margin-top: 14px; font-size: 11px; opacity: 0.75; }
 
 .spinner {
   width: 40px;
@@ -339,13 +338,11 @@ h2 {
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-bottom: 18px;
 }
 
 .toolbar .actions { display: flex; flex-wrap: wrap; gap: 8px; }
-
-.user-line { color: var(--muted); font-size: 14px; word-break: break-all; }
 
 .stats {
   display: grid;
