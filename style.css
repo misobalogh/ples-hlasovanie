@@ -533,7 +533,41 @@ body.is-busy .suggestions { opacity: 0.6; pointer-events: none; }
 
 /* ---------- QR page ---------- */
 
-.qr-page .wrap { padding-bottom: 32px; text-align: center; max-width: 720px; }
+.qr-page .wrap { padding-bottom: 32px; text-align: center; max-width: 1280px; }
+
+/* Barbie | QR | Ken side by side on wide screens, GIFs below on phones. */
+.qr-stage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: 'qr qr' 'left right';
+  gap: 16px 12px;
+  justify-items: center;
+  align-items: center;
+  margin: 10px 0 22px;
+}
+
+.qr-stage .qr-box { grid-area: qr; margin: 0; }
+.qr-gif:first-child { grid-area: left; transform: rotate(-3deg); }
+.qr-gif:last-child { grid-area: right; transform: rotate(3deg); }
+
+.qr-gif {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 22px;
+  background: var(--pink-soft);
+  box-shadow: 0 0 0 5px #fff, 0 14px 36px rgba(184, 16, 106, 0.3);
+}
+
+@media (min-width: 900px) {
+  .qr-stage {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: 'left qr right';
+    gap: 32px;
+  }
+}
 
 .qr-box {
   display: inline-block;
@@ -544,7 +578,7 @@ body.is-busy .suggestions { opacity: 0.6; pointer-events: none; }
   margin: 10px 0 22px;
 }
 
-.qr-box svg { display: block; width: min(78vw, 70vh, 560px); height: auto; }
+.qr-box svg { display: block; width: min(78vw, 62vh, 560px); height: auto; }
 
 .qr-url { font-size: 18px; color: var(--muted); word-break: break-all; }
 .qr-cta { font-family: var(--font-head); font-size: clamp(30px, 6vw, 46px); color: var(--pink); margin: 0; }
@@ -553,5 +587,7 @@ body.is-busy .suggestions { opacity: 0.6; pointer-events: none; }
   body { background: #fff; color: #000; }
   .no-print { display: none !important; }
   .qr-box { box-shadow: none; border: 2px solid #000; }
+  .qr-gif { display: none; }
+  .qr-stage { display: block; }
   .qr-url, .event-title { color: #000; }
 }
